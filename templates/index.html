@@ -1,230 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prashant | Flask App 🚀</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(160deg, #0C0D16, #1A1C2B);
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* Flex container for profile + content */
-        .container {
-            display: flex;
-            flex-direction: row;
-            max-width: 1050px;
-            width: 100%;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-        }
-
-        /* Left side: profile photo */
-        .profile-photo {
-            flex: 0 0 200px;
-            margin-right: 30px;
-        }
-
-        .profile-photo img {
-            width: 100%;
-            border-radius: 50%;
-            border: 3px solid #5599FF;
-            box-shadow: 0 4px 15px rgba(85, 153, 255, 0.5);
-        }
-
-        /* Right side: content */
-        .content {
-            flex: 1;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #5599FF;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 1rem;
-            color: #ccc;
-            margin-bottom: 15px;
-        }
-
-        .about {
-            margin-bottom: 20px;
-            padding: 10px 15px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .about h2 {
-            font-size: 1.3rem;
-            color: #5599FF;
-            margin-bottom: 8px;
-        }
-
-        .about p {
-            font-size: 0.95rem;
-            color: #ddd;
-            line-height: 1.5;
-        }
-
-        .messages {
-            margin-bottom: 15px;
-            padding: 12px;
-            background: rgba(85, 153, 255, 0.08);
-            border: 1px solid rgba(85, 153, 255, 0.2);
-            border-radius: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            text-align: left;
-        }
-
-        .messages p {
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 8px;
-            margin-bottom: 6px;
-            font-size: 0.95rem;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(85, 153, 255, 0.3);
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        input[type="text"]:focus {
-            border-color: #5599FF;
-            box-shadow: 0 0 12px rgba(85, 153, 255, 0.6);
-            outline: none;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background: #5599FF;
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background: #417ad6;
-            box-shadow: 0 0 15px rgba(85, 153, 255, 0.6);
-            transform: translateY(-2px);
-        }
-
-        /* Responsive */
-        @media (max-width: 800px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .profile-photo {
-                margin-right: 0;
-                margin-bottom: 20px;
-                flex: 0 0 auto;
-            }
-        }
-    </style>
+    <meta name="description" content="Meet TejasMart: a demo shopping destination for thoughtful everyday finds, from your desk to your downtime.">
+    <meta name="theme-color" content="#f8f7f3">
+    <title>TejasMart — A little more everyday.</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='store.css') }}">
+    <script src="{{ url_for('static', filename='store.js') }}" defer></script>
 </head>
-
 <body>
-    <div class="container">
-        <!-- Profile photo -->
-        <div class="profile-photo">
-            <img src="1.png" alt="Prashant Photo">
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <div class="header">
-                <h1>Prashant Gohil | DevOps Enthusiast</h1>
-                <p>Student | Aspiring Cloud & DevOps Engineer</p>
-            </div>
-
-            <div class="about">
-                <h2>About Me</h2>
-                <p>Hi, I'm <b>Prashant</b> 👋, a student and aspiring Cloud & DevOps engineer.</p>
-                <p style="margin-top:10px;">
-                    <b>Project:</b> I have deployed a 2-tier Flask application (Flask + MySQL) on AWS EC2 using Docker.  
-                    I used Docker Compose to manage both containers with volumes and a custom network.  
-                    The source code is hosted on GitHub, and Jenkins is integrated to set up a CI/CD pipeline for automated deployment.
-                </p>
-            </div>
-
-            <div class="messages">
-                {% for message in messages %}
-                    <p>{{ message[0] }}</p>
-                {% endfor %}
-            </div>
-
-            <form id="messageForm">
-                <input type="text" name="new_message" placeholder="Type your message..." required>
-                <input type="submit" value="Send">
+    <a class="skip-link" href="#main">Skip to products</a>
+    <div class="announcement"><span>A little upgrade. A lot to love.</span><a href="#catalog">Discover your next favorite <span aria-hidden="true">↗</span></a></div>
+    <header class="site-header">
+        <div class="header-main page-width">
+            <a class="brand" href="/" aria-label="TejasMart home"><span class="brand-mark" aria-hidden="true">t<span>m</span></span><span>Tejas<span class="brand-light">Mart</span><span class="brand-dot">.</span></span></a>
+            <form class="search-form" id="search-form" role="search">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+                <input id="search" type="search" placeholder="Find your next everyday favorite" aria-label="Search products" autocomplete="off">
+                <button type="submit">Search</button>
             </form>
+            <div class="header-actions">
+                <button class="header-action cart-trigger" id="cart-open" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-bag"/></svg><span>My cart</span><span class="cart-count" id="cart-count">0</span></button>
+            </div>
         </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $("#messageForm").on("submit", function(event) {
-                event.preventDefault();
-                let messageInput = $("input[name='new_message']");
-                let message = messageInput.val().trim();
-
-                if (message === "") {
-                    alert("Message cannot be empty!");
-                    return;
-                }
-
-                $.ajax({
-                    url: "/submit",
-                    type: "POST",
-                    data: { new_message: message },
-                    success: function(response) {
-                        if (response && response.message) {
-                            $(".messages").append("<p>" + response.message + "</p>");
-                            messageInput.val("");
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX Error:", status, error);
-                    }
-                });
-            });
-        });
-    </script>
+        <div class="nav-wrap"><nav class="page-width category-nav" aria-label="Shop categories">
+            <div class="nav-categories">
+                <button class="nav-category active" data-category="All" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg> All products</button>
+                <button class="nav-category" data-category="Electronics" aria-pressed="false">Electronics</button>
+                <button class="nav-category" data-category="Home & Living" aria-pressed="false">Home & Living</button>
+                <button class="nav-category" data-category="Lifestyle" aria-pressed="false">Lifestyle</button>
+                <button class="nav-category" id="deals-toggle" aria-pressed="false">The good deals <span class="tiny-dot" aria-hidden="true"></span></button>
+            </div>
+            <a class="nav-note" href="#about">A little more about us <span aria-hidden="true">↗</span></a>
+        </nav></div>
+    </header>
+    <main id="main">
+        <section class="hero page-width" aria-labelledby="hero-heading">
+            <div class="hero-copy">
+                <p class="eyebrow"><span></span> THE EVERYDAY EDIT</p>
+                <h1 id="hero-heading">Little upgrades.<br><em>Better days.</em></h1>
+                <p class="hero-description">Good things for your desk, your home, and<br class="desktop-break"> everywhere the day takes you.</p>
+                <a class="button button-dark" href="#catalog">Explore the collection <span aria-hidden="true">↗</span></a>
+                <div class="hero-caption"><span class="caption-line" aria-hidden="true"></span>Thoughtful finds. Refreshingly simple.</div>
+            </div>
+            <div class="hero-art" aria-label="Featured headphones and everyday essentials">
+                <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+                <div class="art-caption">MADE FOR YOUR EVERYDAY</div>
+                <svg class="hero-headphones" role="img" aria-label="Cream wireless headphones"><use href="{{ url_for('static', filename='images/products.svg') }}#headphones"/></svg>
+                <div class="hero-price"><span>Meet your new favorite</span><strong>Everyday Wireless</strong><span><b>$79</b> <s>$119</s></span></div>
+                <div class="hero-tag"><span aria-hidden="true">✦</span> A sound little upgrade.</div>
+                <a class="hero-product-link" href="#catalog" aria-label="Explore the collection"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+        </section>
+        <section class="benefits page-width" aria-label="Store features">
+            <div><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg><p><strong>Small finds, big difference</strong><span>Thoughtfully chosen everyday essentials</span></p></div>
+            <div><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg><p><strong>A collection that feels like you</strong><span>Simple essentials for work, home, and play</span></p></div>
+            <div><svg class="icon" aria-hidden="true"><use href="#i-bag"/></svg><p><strong>Try the shopping experience</strong><span>Demo checkout. No payment needed.</span></p></div>
+        </section>
+        <section class="catalog-section page-width" id="catalog" aria-labelledby="catalog-heading">
+            <div class="section-heading"><div><p class="eyebrow">CURATED, JUST FOR YOUR EVERYDAY</p><h2 id="catalog-heading">Find your new favorite<span>.</span></h2></div><p class="collection-note">A few good things. Endless possibilities.</p></div>
+            <div class="catalog-toolbar">
+                <div class="filter-chips" aria-label="Filter products">
+                    <button class="filter-chip active" data-category="All" aria-pressed="true">All finds <span>08</span></button>
+                    <button class="filter-chip" data-category="Electronics" aria-pressed="false">Electronics</button>
+                    <button class="filter-chip" data-category="Home & Living" aria-pressed="false">Home & Living</button>
+                    <button class="filter-chip" data-category="Lifestyle" aria-pressed="false">Lifestyle</button>
+                </div>
+                <label class="sort-control">Sort by <select id="sort"><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="name">Name: A–Z</option></select></label>
+            </div>
+            <p id="results-status" class="results-status" role="status" aria-live="polite">Showing all 8 finds</p>
+            <div id="product-grid" class="product-grid">
+                <article class="product-card" data-product-id="headphones">
+                    <div class="product-visual sand">
+                        <span class="product-badge">Featured find</span>
+                        <button class="product-image-button" data-add="headphones" aria-label="Add Everyday Wireless Headphones to cart"><svg class="product-image" role="img" aria-label="Everyday Wireless Headphones illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#headphones"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Electronics</p><h3>Everyday Wireless Headphones</h3><p class="product-label">A little less noise. A lot more music.</p><div class="product-bottom"><div class="price"><strong>$79.00</strong><s>$119.00</s></div><button class="add-button" data-add="headphones" aria-label="Add Everyday Wireless Headphones to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="keyboard">
+                    <div class="product-visual sage">
+                        <span class="product-badge">Desk favorite</span>
+                        <button class="product-image-button" data-add="keyboard" aria-label="Add Studio Mechanical Keyboard to cart"><svg class="product-image" role="img" aria-label="Studio Mechanical Keyboard illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#keyboard"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Electronics</p><h3>Studio Mechanical Keyboard</h3><p class="product-label">Make a little room for better work.</p><div class="product-bottom"><div class="price"><strong>$69.00</strong><s>$89.00</s></div><button class="add-button" data-add="keyboard" aria-label="Add Studio Mechanical Keyboard to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="bag">
+                    <div class="product-visual peach">
+                        <span class="product-badge">Everyday essential</span>
+                        <button class="product-image-button" data-add="bag" aria-label="Add Weekender Everyday Backpack to cart"><svg class="product-image" role="img" aria-label="Weekender Everyday Backpack illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#bag"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Lifestyle</p><h3>Weekender Everyday Backpack</h3><p class="product-label">From your morning commute to Friday away.</p><div class="product-bottom"><div class="price"><strong>$49.00</strong><s>$65.00</s></div><button class="add-button" data-add="bag" aria-label="Add Weekender Everyday Backpack to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="lamp">
+                    <div class="product-visual lavender">
+                        <span class="product-badge">New arrival</span>
+                        <button class="product-image-button" data-add="lamp" aria-label="Add Glow Table Lamp to cart"><svg class="product-image" role="img" aria-label="Glow Table Lamp illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#lamp"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Home &amp; Living</p><h3>Glow Table Lamp</h3><p class="product-label">A softer light for your favorite corner.</p><div class="product-bottom"><div class="price"><strong>$39.00</strong></div><button class="add-button" data-add="lamp" aria-label="Add Glow Table Lamp to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="watch">
+                    <div class="product-visual sky">
+                        <span class="product-badge">Fresh pick</span>
+                        <button class="product-image-button" data-add="watch" aria-label="Add Move Everyday Smartwatch to cart"><svg class="product-image" role="img" aria-label="Move Everyday Smartwatch illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#watch"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Electronics</p><h3>Move Everyday Smartwatch</h3><p class="product-label">Find your rhythm, one day at a time.</p><div class="product-bottom"><div class="price"><strong>$99.00</strong><s>$129.00</s></div><button class="add-button" data-add="watch" aria-label="Add Move Everyday Smartwatch to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="bottle">
+                    <div class="product-visual sage">
+                        <span class="product-badge">Small upgrade</span>
+                        <button class="product-image-button" data-add="bottle" aria-label="Add Daybreak Insulated Bottle to cart"><svg class="product-image" role="img" aria-label="Daybreak Insulated Bottle illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#bottle"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Lifestyle</p><h3>Daybreak Insulated Bottle</h3><p class="product-label">Good mornings start with a full bottle.</p><div class="product-bottom"><div class="price"><strong>$24.00</strong></div><button class="add-button" data-add="bottle" aria-label="Add Daybreak Insulated Bottle to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="speaker">
+                    <div class="product-visual lavender">
+                        <span class="product-badge">Good together</span>
+                        <button class="product-image-button" data-add="speaker" aria-label="Add Pocket Portable Speaker to cart"><svg class="product-image" role="img" aria-label="Pocket Portable Speaker illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#speaker"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Electronics</p><h3>Pocket Portable Speaker</h3><p class="product-label">A small speaker for your big moments.</p><div class="product-bottom"><div class="price"><strong>$45.00</strong><s>$59.00</s></div><button class="add-button" data-add="speaker" aria-label="Add Pocket Portable Speaker to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+                <article class="product-card" data-product-id="chair">
+                    <div class="product-visual peach">
+                        <span class="product-badge">Home favorite</span>
+                        <button class="product-image-button" data-add="chair" aria-label="Add Sunday Lounge Chair to cart"><svg class="product-image" role="img" aria-label="Sunday Lounge Chair illustration"><use href="{{ url_for('static', filename='images/products.svg') }}#chair"/></svg></button>
+                        <span class="quick-view">Add to your cart <span aria-hidden="true">+</span></span>
+                    </div>
+                    <div class="product-info"><p class="product-category">Home &amp; Living</p><h3>Sunday Lounge Chair</h3><p class="product-label">Your new favorite place to do nothing.</p><div class="product-bottom"><div class="price"><strong>$189.00</strong><s>$229.00</s></div><button class="add-button" data-add="chair" aria-label="Add Sunday Lounge Chair to cart"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div>
+                </article>
+            </div>
+            <div class="empty-state" id="empty-products" hidden><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><h3>No finds just yet.</h3><p>Try a different search or explore the whole collection.</p><button class="button button-dark" id="reset-filters">Show all products</button></div>
+        </section>
+        <section class="editorial page-width"><div class="editorial-copy"><p class="eyebrow">LESS SCROLLING. MORE LIVING.</p><h2>Make yourself<br>right at home.</h2><p>A warm glow. A comfortable corner.<br>Sometimes, the little things are the big things.</p><button class="text-link" data-category="Home & Living">Find your home favorites <span aria-hidden="true">↗</span></button></div><div class="editorial-art"><svg role="img" aria-label="Peach lounge chair"><use href="{{ url_for('static', filename='images/products.svg') }}#chair"/></svg><span>A little space to slow down.</span></div></section>
+        <section class="requests page-width" id="about" aria-labelledby="about-heading"><div><p class="eyebrow">HELLO, WE’RE TEJASMART</p><h2 id="about-heading">Good things. Simply found.</h2><p>A small collection of everyday favorites, all in one place. Browse, explore, and find a little inspiration for your day.</p></div><div class="community-box"><span class="community-label"><span class="tiny-dot"></span> A LITTLE SOMETHING TO EXPLORE</span><h3>A store made for trying things.</h3><p class="about-demo">TejasMart is a demo storefront. Explore the sample products and try the cart. No accounts, payments, or real orders.</p></div></section>
+    </main>
+    <footer class="site-footer"><div class="page-width footer-top"><a href="/" class="brand"><span>Tejas<span class="brand-light">Mart</span><span class="brand-dot">.</span></span></a><p>A little more everyday.</p><a href="#catalog">Back to the collection ↑</a></div><div class="page-width footer-bottom"><span>© 2026 TejasMart. A shopping demo by Tejas Khode.</span><span>Sample catalog · USD prices · No real payments or shipments</span></div></footer>
+    <dialog id="cart-dialog" class="cart-dialog" aria-labelledby="cart-title"><div class="drawer-head"><div><p class="eyebrow">YOUR EVERYDAY FINDS</p><h2 id="cart-title">My cart <span id="drawer-count">0</span></h2></div><button class="icon-button" data-close="cart-dialog" aria-label="Close cart"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></div><div id="cart-items" class="cart-items"></div><div id="cart-summary" class="cart-summary"><div class="subtotal"><span>Subtotal</span><strong id="cart-total">$0.00</strong></div><p>Demo checkout only. No payment, delivery, or real order is created.</p><button class="button button-dark" id="checkout-button">Try demo checkout <span aria-hidden="true">↗</span></button><button class="continue-button" data-close="cart-dialog">Keep exploring</button></div></dialog>
+    <dialog id="checkout-dialog" class="checkout-dialog" aria-labelledby="checkout-title"><button class="icon-button modal-close" data-close="checkout-dialog" aria-label="Close checkout confirmation"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button><div class="success-symbol" aria-hidden="true">✓</div><p class="eyebrow">THAT WAS A NICE LITTLE FIND</p><h2 id="checkout-title">You’ve tried the checkout!</h2><p id="checkout-description"></p><p class="demo-note">This was a demo. No payment was collected, no real order was created, and nothing will be shipped.</p><button class="button button-dark" data-close="checkout-dialog">Back to exploring <span aria-hidden="true">↗</span></button></dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <noscript><p class="noscript-note">You can browse the collection, but search and cart need JavaScript enabled.</p></noscript>
+    <script type="application/json" id="catalog-data">[{"id": "headphones", "name": "Everyday Wireless Headphones", "category": "Electronics", "price": 7900, "original_price": 11900, "color": "sand"}, {"id": "keyboard", "name": "Studio Mechanical Keyboard", "category": "Electronics", "price": 6900, "original_price": 8900, "color": "sage"}, {"id": "bag", "name": "Weekender Everyday Backpack", "category": "Lifestyle", "price": 4900, "original_price": 6500, "color": "peach"}, {"id": "lamp", "name": "Glow Table Lamp", "category": "Home & Living", "price": 3900, "original_price": null, "color": "lavender"}, {"id": "watch", "name": "Move Everyday Smartwatch", "category": "Electronics", "price": 9900, "original_price": 12900, "color": "sky"}, {"id": "bottle", "name": "Daybreak Insulated Bottle", "category": "Lifestyle", "price": 2400, "original_price": null, "color": "sage"}, {"id": "speaker", "name": "Pocket Portable Speaker", "category": "Electronics", "price": 4500, "original_price": 5900, "color": "lavender"}, {"id": "chair", "name": "Sunday Lounge Chair", "category": "Home & Living", "price": 18900, "original_price": 22900, "color": "peach"}]</script>
+    <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+        <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 19 19 5M5 5h14v14"/></symbol>
+        <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7L12 2Z"/></symbol>
+    </defs></svg>
 </body>
 </html>
