@@ -123,7 +123,7 @@ This document outlines the step-by-step process for deploying a 2-tier web appli
     sudo apt update
     sudo apt install jenkins -y
     ```
-
+---
 <img src="diagrams/jenkins_repo_install.png">
 
 3.  **Start and Enable Jenkins Service:**
