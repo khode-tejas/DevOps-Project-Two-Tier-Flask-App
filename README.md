@@ -58,7 +58,7 @@ This document outlines the step-by-step process for deploying a 2-tier web appli
 1.  **Launch EC2 Instance:**
     * Navigate to the AWS EC2 console.
     * Launch a new instance using the **Ubuntu 22.04 LTS** AMI.
-    * Select the **t2.micro** instance type for free-tier eligibility.
+    * Select the **t2.medium** instance type (Note: usage charges apply; check [AWS pricing](https://aws.amazon.com/ec2/pricing/on-demand/) for your region).
     * Create and assign a new key pair for SSH access.
 
 <img src="diagrams/01.png">
@@ -78,6 +78,7 @@ This document outlines the step-by-step process for deploying a 2-tier web appli
     ssh -i /path/to/key.pem ubuntu@<ec2-public-ip>
     ```
 
+<img src="diagrams/SSH.png">
 ---
 
 ### **4. Step 2: Install Dependencies on EC2**
@@ -108,18 +109,21 @@ This document outlines the step-by-step process for deploying a 2-tier web appli
 
 ### **5. Step 3: Jenkins Installation and Setup**
 
-1.  **Install Java (OpenJDK 17):**
+1.  **Install Java (OpenJDK 21):**
     ```bash
-    sudo apt install openjdk-17-jdk -y
+    sudo apt install openjdk-21-jdk -y
     ```
 
+<img src="diagrams/java_version.png">
+---
 2.  **Add Jenkins Repository and Install:**
     ```bash
-    curl -fsSL [https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key](https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key) | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] [https://pkg.jenkins.io/debian-stable](https://pkg.jenkins.io/debian-stable) binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
     sudo apt update
     sudo apt install jenkins -y
     ```
+
 
 3.  **Start and Enable Jenkins Service:**
     ```bash
@@ -151,29 +155,22 @@ Ensure your GitHub repository contains the following three files.
 #### **Dockerfile**
 This file defines the environment for the Flask application container.
 ```dockerfile
-# Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies required for mysqlclient
+
 RUN apt-get update && apt-get install -y gcc default-libmysqlclient-dev pkg-config && \
-    rm -rf /var/lib/apt/lists/*
+rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file to leverage Docker cache
-COPY requirements.txt .
+COPY requirement.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirement.txt
 
-# Copy the rest of the application code
 COPY . .
 
-# Expose the port the app runs on
 EXPOSE 5000
 
-# Command to run the application
 CMD ["python", "app.py"]
 ```
 
@@ -187,74 +184,82 @@ services:
     container_name: mysql
     image: mysql
     environment:
-      MYSQL_DATABASE: "devops"
       MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "devops"
     ports:
       - "3306:3306"
+
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+
     networks:
-      - two-tier
+      - two-tier-nt
+
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot","-proot"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 60s
 
-  flask:
+
+  flask-app:
+    container_name: two-tier-app
     build:
       context: .
-    container_name: two-tier-app
+
     ports:
       - "5000:5000"
+
     environment:
       - MYSQL_HOST=mysql
       - MYSQL_USER=root
       - MYSQL_PASSWORD=root
       - MYSQL_DB=devops
+
     networks:
-      - two-tier
+      - two-tier-nt
+
     depends_on:
-      - mysql
-    restart: always
+      mysql:
+        condition: service_healthy
+
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/', timeout=3)"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 60s
 
 volumes:
-  mysql-data:
+  mysql_data:
 
 networks:
-  two-tier:
+  two-tier-nt:
 ```
 
 #### **Jenkinsfile**
 This file contains the pipeline-as-code definition for Jenkins.
 ```groovy
-pipeline {
+pipeline{
     agent any
-    stages {
-        stage('Clone Code') {
-            steps {
-                // Replace with your GitHub repository URL
+    stages{
+        stage('Clone repo'){
+            steps{
                 git branch: 'main', url: '[https://github.com/your-username/your-repo.git](https://github.com/your-username/your-repo.git)'
             }
         }
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t flask-app:latest .'
+        stage('Build image'){
+            steps{
+                sh 'docker build -t flask-app .'
             }
         }
-        stage('Deploy with Docker Compose') {
-            steps {
-                // Stop existing containers if they are running
+        stage('Deploy with docker compose'){
+            steps{
+                // existing container if they are running
                 sh 'docker compose down || true'
-                // Start the application, rebuilding the flask image
+                // start app, rebuilding flask image
                 sh 'docker compose up -d --build'
             }
         }
@@ -294,7 +299,7 @@ pipeline {
 ---
 
 ### **8. Conclusion**
-The CI/CD pipeline is now fully operational. Any `git push` to the `main` branch of the configured GitHub repository will automatically trigger the Jenkins pipeline, which will build the new Docker image and deploy the updated application, ensuring a seamless and automated workflow from development to production.
+The CI/CD pipeline is integrated with a GitHub webhook configured for push events. When changes are pushed to the `main` branch, GitHub notifies Jenkins and automatically triggers the pipeline. Jenkins builds a new Docker image and deploys the updated application on AWS EC2 using Docker Compose.
 
 
 ### **9. Infrastructure Diagram**
